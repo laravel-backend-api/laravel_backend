@@ -12,6 +12,8 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
 
+            $table->string('username');
+            
             // The user's role (e.g., 'creator', 'user').
             $table->string('role');
 
