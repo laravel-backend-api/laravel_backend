@@ -15,7 +15,7 @@ return new class extends Migration
             $table->string('name');
             
             // The user's role (e.g., 'creator', 'user').
-            $table->string('role');
+            $table->string('role')->default('admin');
 
             $table->string('email')->unique();
 
