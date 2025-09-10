@@ -7,7 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Category extends Model
 {
-     public function subcategories() {
+    protected $fillable = ['name', 'slug','order', 'is_active'];
+    public function subcategories() {
         return $this->hasmany(Subcategory::class);
     }
     public function users() {
