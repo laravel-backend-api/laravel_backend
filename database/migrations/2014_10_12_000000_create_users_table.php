@@ -12,6 +12,8 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
 
+            $table->string('name');
+            
             // The user's role (e.g., 'creator', 'user').
             $table->string('role');
 
@@ -19,13 +21,13 @@ return new class extends Migration
 
             $table->string('password');
 
-            $table->string('timezone');
+            $table->string('timezone') -> nullable();
 
             // The user's status (e.g., 'active', 'suspended').
-            $table->string('status');
+            $table->string('status') -> default('active');
 
             // The remember token for the "remember me" functionality.
-            $table->rememberToken();
+            // $table->rememberToken();
             
             $table->timestamps();
         });
