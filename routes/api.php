@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\CategoryController;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,6 +20,7 @@ use App\Http\Controllers\Api\AuthController;
 Route::post('/auth/register', [AuthController::class, 'register'])->name('register');
 Route::post('/auth/login', [AuthController::class, 'login'])->name('login');
 Route::post('/auth/forgot-password', [AuthController::class, 'forgotPassword'])->name('forgot-password');
+Route::post('/auth/reset-password', [AuthController::class, 'resetPassword'])->name('reset-password');
 
 // Authenticated routes
 Route::middleware('auth:sanctum')->group(function () {

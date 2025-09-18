@@ -8,7 +8,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
-use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\DB;
+use App\Mail\MailVerifyOtp;
 
 class AuthController extends Controller
 {
@@ -56,22 +58,19 @@ class AuthController extends Controller
      */
     public function login(Request $request)
     {
-        // Validate the request data
         $request->validate([
             'email' => 'required|string|email',
             'password' => 'required|string',
         ]);
 
-        // Attempt to authenticate the user
         if (!Auth::attempt($request->only('email', 'password'))) {
             throw ValidationException::withMessages([
                 'email' => ['The provided credentials do not match our records.'],
             ]);
         }
 
-        $user = $request->user();
+        $user = Auth::user();
 
-        // Generate a new token for the authenticated user
         $token = $user->createToken('auth-token')->plainTextToken;
 
         return response()->json([
@@ -81,26 +80,84 @@ class AuthController extends Controller
         ]);
     }
 
+
+    public function forgotPassword(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+        ]);
+        $user = User::where('email', $request->email)->first();
+        if (!$user) {
+            return response()->json(['error' => 'Email not found'], 404);
+        }
+
+        $otp = rand(1000, 9999);
+        $user->update(['otp' => $otp]);
+
+        try {
+            Mail::to($user->email)->send(new MailVerifyOtp($otp));
+
+            DB::table('password_reset_tokens')->updateOrInsert(
+                ['email' => $user->email],
+                [
+                    'token' => $otp,
+                    'created_at' => now()
+                ]
+            );
+
+            return response()->json([
+                'message' => 'OTP sent successfully',
+                'token' => $otp
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Failed to send OTP',
+                'details' => $e->getMessage()
+            ], 500);
+        }
+    }
+
     /**
-     * Handle forgot password request.
-     *
-     * This method sends a password reset link to the user's email.
+     * Reset the user's password using a valid token.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
-     * @throws \Illuminate\Validation\ValidationException
      */
-    public function forgotPassword(Request $request)
+    public function resetPassword(Request $request)
     {
-        // Validate the email
-        $request->validate(['email' => 'required|email']);
-
-        // Send a password reset link to the email
-        Password::sendResetLink($request->only('email'));
-
-        return response()->json([
-            'message' => 'If a matching email address was found, a password reset link has been sent.',
+        $request->validate([
+            'token' => 'required|string',
+            'email' => 'required|email',
+            'password' => 'required|string|min:8|confirmed',
         ]);
+
+        $user = User::where('email', $request->email)->first();
+
+        $record = DB::table('password_reset_tokens')
+            ->where('email', $user->email)
+            ->where('token', $request->token)
+            ->first();
+
+        if (!$record) {
+            return response()->json(['error' => 'Invalid token'], 400);
+        }
+
+        // Optional: check if token expired (e.g., 15 minutes)
+        if (now()->diffInMinutes($record->created_at) > 15) {
+            return response()->json(['error' => 'Token expired'], 400);
+        }
+
+        $user->password = Hash::make($request->password);
+
+        // Invalidate all "remember me" sessions
+        // $user->setRememberToken(Str::random(60));
+
+        $user->save();
+
+        // Delete the reset token
+        DB::table('password_reset_tokens')->where('email', $user->email)->delete();
+
+        return response()->json(['message' => 'Password reset successfully']);
     }
 
     /**
