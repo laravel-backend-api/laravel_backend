@@ -7,10 +7,16 @@ use Illuminate\Database\Eloquent\Model;
 
 class Category extends Model
 {
-     public function subcategories() {
+    use HasFactory;
+
+    protected $fillable = ['name', 'slug', 'order', 'is_active'];
+
+    public function subcategories()
+    {
         return $this->hasmany(Subcategory::class);
     }
-    public function users() {
+    public function users()
+    {
         return $this->belongsToMany(User::class, 'creator_categories');
     }
 }
