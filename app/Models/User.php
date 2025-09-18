@@ -10,7 +10,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class User extends Authenticatable
 {
-     use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -82,6 +82,11 @@ class User extends Authenticatable
     public function rooms()
     {
         return $this->hasMany(Room::class, 'creator_id');
+    }
+
+    public function scopeCreators($query)
+    {
+        return $query->where('role', 'creator');
     }
 
     /**

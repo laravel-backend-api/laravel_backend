@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\CreatorController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CategoryController;
 
@@ -24,6 +25,11 @@ Route::post('/auth/reset-password', [AuthController::class, 'resetPassword'])->n
 
 Route::get('/categories', [CategoryController::class, 'index']);
 Route::get('/categories/{id}/subcategories', [CategoryController::class, 'subcategories']);
+
+Route::get('/creators', [CreatorController::class, 'index']);
+Route::get('/creators/{id}', [CreatorController::class, 'show']);
+Route::get('/creators/{id}/room', [CreatorController::class, 'rooms']);
+Route::post('/creator/room', [CreatorController::class, 'storeRoom'])->middleware('auth:sanctum');
 
 // Authenticated routes
 Route::middleware('auth:sanctum')->group(function () {
