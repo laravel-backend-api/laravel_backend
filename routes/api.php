@@ -22,6 +22,9 @@ Route::post('/auth/login', [AuthController::class, 'login'])->name('login');
 Route::post('/auth/forgot-password', [AuthController::class, 'forgotPassword'])->name('forgot-password');
 Route::post('/auth/reset-password', [AuthController::class, 'resetPassword'])->name('reset-password');
 
+Route::get('/categories', [CategoryController::class, 'index']);
+Route::get('/categories/{id}/subcategories', [CategoryController::class, 'subcategories']);
+
 // Authenticated routes
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me', [AuthController::class, 'me'])->name('me');
