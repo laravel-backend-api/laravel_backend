@@ -66,5 +66,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/me/feed', [SocialController::class, 'feed']);
         Route::post('/sessions/{occurrence}/book', [BookingController::class, 'book']);
         Route::post('/sessions/{occurrence}/waitlist', [BookingController::class, 'waitlist']);
+        Route::delete('/sessions/{occurrence}/book', [BookingController::class, 'cancel']);
     });
 });

@@ -1,0 +1,1 @@
+<p>Good news! You have been moved from the waitlist to booked for {{ $booking->occurrence->template->title }}.</p>

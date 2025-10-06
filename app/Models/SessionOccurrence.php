@@ -17,6 +17,10 @@ class SessionOccurrence extends Model
         'drive_link',
         'stats_cached_json'
     ];
+    protected $casts = [
+        'start_at' => 'datetime',
+        'end_at' => 'datetime',
+    ];
     public function template()
     {
         return $this->belongsTo(SessionTemplate::class);

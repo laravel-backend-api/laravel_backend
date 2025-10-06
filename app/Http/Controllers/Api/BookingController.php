@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\SessionOccurrence;
 use App\Models\Booking;
+use App\Events\BookingCreated;
+use App\Events\BookingCancelled;
 
 class BookingController extends Controller
 {
@@ -31,6 +33,8 @@ class BookingController extends Controller
             'booked_at' => now(),
         ]);
 
+        event(new BookingCreated($booking));
+
         return response()->json($booking, 201);
     }
 
@@ -50,5 +54,20 @@ class BookingController extends Controller
         ]);
 
         return response()->json($booking, 201);
+    }
+
+    // DELETE /api/sessions/{occurrenceId}/book (cancel)
+    public function cancel(SessionOccurrence $occurrence, Request $request)
+    {
+        $user = $request->user();
+        $booking = $occurrence->bookings()->where('user_id', $user->id)->where('status', 'booked')->first();
+        if (!$booking) {
+            return response()->json(['error' => 'No active booking'], 404);
+        }
+
+        $booking->delete();
+        event(new BookingCancelled($booking));
+
+        return response()->json(['message' => 'Cancelled']);
     }
 }

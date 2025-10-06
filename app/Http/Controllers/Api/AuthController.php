@@ -9,11 +9,17 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Mail;
+use App\Services\Mail\MailerInterface;
 use Illuminate\Support\Facades\DB;
 use App\Mail\MailVerifyOtp;
+use App\Mail\WelcomeRegistered;
+use App\Mail\PasswordResetRequested;
 
 class AuthController extends Controller
 {
+    public function __construct(private MailerInterface $mailer)
+    {
+    }
     /**
      * Handle user or creator registration.
      *
@@ -38,6 +44,9 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
             'role' => $request->role,
         ]);
+
+        // Send welcome email (queued)
+        $this->mailer->sendWelcome($user);
 
         // Create a Sanctum token for the new user
         $token = $user->createToken('auth-token')->plainTextToken;
@@ -95,7 +104,7 @@ class AuthController extends Controller
         $user->update(['otp' => $otp]);
 
         try {
-            Mail::to($user->email)->send(new MailVerifyOtp($otp));
+            $this->mailer->sendPasswordResetOtp($user->email, $otp);
 
             DB::table('password_reset_tokens')->updateOrInsert(
                 ['email' => $user->email],
@@ -106,8 +115,7 @@ class AuthController extends Controller
             );
 
             return response()->json([
-                'message' => 'OTP sent successfully',
-                'token' => $otp
+                'message' => 'OTP sent successfully'
             ]);
         } catch (\Exception $e) {
             return response()->json([
