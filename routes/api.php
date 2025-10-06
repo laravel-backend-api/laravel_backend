@@ -2,9 +2,12 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\CreatorController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\BookingController;
+use App\Http\Controllers\Api\CreatorController;
 use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\SessionTemplateController;
+use App\Http\Controllers\Api\SessionOccurrenceController;
 
 /*
 |--------------------------------------------------------------------------
@@ -23,6 +26,13 @@ Route::post('/auth/login', [AuthController::class, 'login'])->name('login');
 Route::post('/auth/forgot-password', [AuthController::class, 'forgotPassword'])->name('forgot-password');
 Route::post('/auth/reset-password', [AuthController::class, 'resetPassword'])->name('reset-password');
 
+// Authenticated routes
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/me', [AuthController::class, 'me'])->name('me');
+    Route::put('/me', [AuthController::class, 'updateMe'])->name('update-me');
+});
+
+// public routes
 Route::get('/categories', [CategoryController::class, 'index']);
 Route::get('/categories/{id}/subcategories', [CategoryController::class, 'subcategories']);
 
@@ -31,8 +41,21 @@ Route::get('/creators/{id}', [CreatorController::class, 'show']);
 Route::get('/creators/{id}/room', [CreatorController::class, 'rooms']);
 Route::post('/creator/room', [CreatorController::class, 'storeRoom'])->middleware('auth:sanctum');
 
-// Authenticated routes
+
+// Public routes
+Route::get('/sessions', [SessionOccurrenceController::class, 'index']);
+Route::get('/sessions/{occurrence}', [SessionOccurrenceController::class, 'show']);
+
+// Routes for authenticated users
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/me', [AuthController::class, 'me'])->name('me');
-    Route::put('/me', [AuthController::class, 'updateMe'])->name('update-me');
+
+    // Creator routes (checks happen in controllers)
+    Route::post('/creator/session-templates', [SessionTemplateController::class, 'store']);
+    Route::post('/creator/session-templates/{template}/rules', [SessionTemplateController::class, 'addRules']);
+    Route::post('/creator/session-templates/{template}/generate', [SessionTemplateController::class, 'generateOccurrences']);
+    Route::post('/sessions/{occurrence}/drive-link', [SessionOccurrenceController::class, 'addDriveLink']);
+
+    // Booking routes
+    Route::post('/sessions/{occurrence}/book', [BookingController::class, 'book']);
+    Route::post('/sessions/{occurrence}/waitlist', [BookingController::class, 'waitlist']);
 });

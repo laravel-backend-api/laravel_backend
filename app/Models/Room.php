@@ -7,12 +7,16 @@ use Illuminate\Database\Eloquent\Model;
 
 class Room extends Model
 {
-    public function users() {
+    use HasFactory;
+    protected $fillable = ['creator_id', 'zoom_link'];
+
+    public function user()
+    {
         return $this->belongsTo(User::class, 'creator_id');
     }
 
-    public function sessionTemplates() {
+    public function sessionTemplates()
+    {
         return $this->hasMany(SessionTemplate::class);
     }
-
 }

@@ -7,10 +7,22 @@ use Illuminate\Database\Eloquent\Model;
 
 class SessionOccurrence extends Model
 {
-    public function sessionTemplate() {
+    use HasFactory;
+    protected $fillable = [
+        'template_id',
+        'start_at',
+        'end_at',
+        'capacity',
+        'status',
+        'drive_link',
+        'stats_cached_json'
+    ];
+    public function template()
+    {
         return $this->belongsTo(SessionTemplate::class);
     }
-    public function bookings() {
-        return $this->hasMany(Booking::class);
+    public function bookings()
+    {
+        return $this->hasMany(Booking::class, 'occurrence_id');
     }
 }

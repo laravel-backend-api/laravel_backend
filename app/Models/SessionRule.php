@@ -7,8 +7,16 @@ use Illuminate\Database\Eloquent\Model;
 
 class SessionRule extends Model
 {
-     public function sessionTemplate() {
-        return $this->belongsTo(SessionTemplate::class);
-    }
+    use HasFactory;
 
+    protected $fillable = [
+        'template_id',
+        'weekday',
+        'start_time',
+        'end_time'
+    ];
+    public function template()
+    {
+        return $this->belongsTo(SessionTemplate::class, 'template_id');
+    }
 }

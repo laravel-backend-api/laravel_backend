@@ -7,18 +7,26 @@ use Illuminate\Database\Eloquent\Model;
 
 class SessionTemplate extends Model
 {
-    public function room() {
+    use HasFactory;
+    protected $fillable = [
+        'room_id',
+        'title',
+        'description',
+        'capacity',
+        'status',
+    ];
+
+    public function room()
+    {
         return $this->belongsTo(Room::class);
     }
 
-    public function sessionRule() {
-        return $this->hasOne(SessionRule::class);
+    public function sessionRules()
+    {
+        return $this->hasMany(SessionRule::class, 'template_id');
     }
-
-    public function sessionOccurences() {
-        return $this->hasMany(SessionOccurrence::class);
+    public function sessionOccurrences()
+    {
+        return $this->hasMany(SessionOccurrence::class, 'template_id');
     }
-
-    
-
 }

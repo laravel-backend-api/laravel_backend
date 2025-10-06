@@ -7,11 +7,19 @@ use Illuminate\Database\Eloquent\Model;
 
 class Booking extends Model
 {
-    public function sessionOccurrence() {
+    use HasFactory;
+    protected $fillable = [
+        'occurrence_id',
+        'user_id',
+        'status',
+        'booked_at',
+    ];
+    public function occurrence()
+    {
         return $this->belongsTo(SessionOccurrence::class);
     }
-
-    public function user () {
+    public function user()
+    {
         return $this->belongsTo(User::class);
     }
 }
