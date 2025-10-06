@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\SessionOccurrenceController;
 use App\Http\Controllers\Api\SocialController;
 use App\Http\Controllers\Api\WalletController;
 use App\Http\Controllers\Api\QuestionsController;
+use App\Http\Controllers\Api\CreatorVerificationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -54,6 +55,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Creator routes
     Route::middleware('is.creator')->group(function () {
+        // Creator email verification via OTP
+        Route::post('/creator/email/request-otp', [CreatorVerificationController::class, 'requestOtp']);
+        Route::post('/creator/email/confirm', [CreatorVerificationController::class, 'confirm']);
         Route::post('/creator/session-templates', [SessionTemplateController::class, 'store']);
         Route::post('/creator/session-templates/{template}/rules', [SessionTemplateController::class, 'addRules']);
         Route::post('/creator/session-templates/{template}/generate', [SessionTemplateController::class, 'generateOccurrences']);
