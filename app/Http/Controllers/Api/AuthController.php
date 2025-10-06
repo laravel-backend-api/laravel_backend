@@ -14,6 +14,9 @@ use Illuminate\Support\Facades\DB;
 use App\Mail\MailVerifyOtp;
 use App\Mail\WelcomeRegistered;
 use App\Mail\PasswordResetRequested;
+use App\Models\Wallet;
+use App\Services\Wallet\WalletService;
+use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
@@ -44,6 +47,16 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
             'role' => $request->role,
         ]);
+
+        // Generate referral code and create wallet with signup bonus
+        $user->referral_code = strtoupper(Str::random(8));
+        $user->save();
+
+        $wallet = Wallet::create([
+            'user_id' => $user->id,
+            'balance_points' => 0,
+        ]);
+        app(WalletService::class)->credit($wallet, 1000, 'SIGNUP_BONUS', $user->id, ['reason' => 'New user bonus']);
 
         // Send welcome email (queued)
         $this->mailer->sendWelcome($user);

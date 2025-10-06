@@ -18,6 +18,9 @@ class SessionTemplateController extends Controller
         if ($user->role !== 'creator') {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
+        if ($user->email_verified_at === null) {
+            return response()->json(['error' => 'Email verification required'], 403);
+        }
 
         $request->validate([
             'title' => 'required|string|max:255',

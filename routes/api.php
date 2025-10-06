@@ -9,6 +9,8 @@ use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\SessionTemplateController;
 use App\Http\Controllers\Api\SessionOccurrenceController;
 use App\Http\Controllers\Api\SocialController;
+use App\Http\Controllers\Api\WalletController;
+use App\Http\Controllers\Api\QuestionsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -56,6 +58,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/creator/session-templates/{template}/rules', [SessionTemplateController::class, 'addRules']);
         Route::post('/creator/session-templates/{template}/generate', [SessionTemplateController::class, 'generateOccurrences']);
         Route::post('/sessions/{occurrence}/drive-link', [SessionOccurrenceController::class, 'addDriveLink']);
+        Route::post('/questions/{question}/mark-answered', [QuestionsController::class, 'markAnswered']);
     });
 
     // Booking routes and social
@@ -67,5 +70,15 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/sessions/{occurrence}/book', [BookingController::class, 'book']);
         Route::post('/sessions/{occurrence}/waitlist', [BookingController::class, 'waitlist']);
         Route::delete('/sessions/{occurrence}/book', [BookingController::class, 'cancel']);
+        // Wallet
+        Route::get('/wallet', [WalletController::class, 'show']);
+        Route::get('/wallet/transactions', [WalletController::class, 'transactions']);
+        // Questions (premium)
+        Route::post('/questions', [QuestionsController::class, 'store']);
+    });
+
+    // Admin/system actions
+    Route::middleware('is.admin')->group(function () {
+        Route::post('/questions/{question}/refund', [QuestionsController::class, 'refund']);
     });
 });

@@ -24,6 +24,8 @@ class User extends Authenticatable
         'password',
         'timezone',
         'status',
+        'email_verified_at',
+        'referral_code',
     ];
 
     /**
@@ -117,5 +119,10 @@ class User extends Authenticatable
     public function followers()
     {
         return $this->belongsToMany(User::class, 'follows', 'creator_id', 'user_id');
+    }
+
+    public function wallet()
+    {
+        return $this->hasOne(Wallet::class);
     }
 }
