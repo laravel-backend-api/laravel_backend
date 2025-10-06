@@ -21,9 +21,13 @@ class BookingController extends Controller
         $bookedCount = $occurrence->bookings()->where('status', 'booked')->count();
         $status = $bookedCount < $occurrence->capacity ? 'booked' : 'waitlisted';
 
+        if ($bookedCount >= $occurrence->capacity) {
+            return response()->json(['error' => 'Session is full'], 400);
+        }
+
         $booking = $occurrence->bookings()->create([
             'user_id' => $user->id,
-            'status' => $status,
+            'status' => 'booked',
             'booked_at' => now(),
         ]);
 
