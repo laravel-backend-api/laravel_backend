@@ -26,8 +26,8 @@ Route::post('/auth/login', [AuthController::class, 'login'])->name('login');
 Route::post('/auth/forgot-password', [AuthController::class, 'forgotPassword'])->name('forgot-password');
 Route::post('/auth/reset-password', [AuthController::class, 'resetPassword'])->name('reset-password');
 
-// Authenticated routes
-Route::middleware('auth:sanctum')->group(function () {
+// Authenticated routes for regular users
+Route::middleware(['auth:sanctum', 'is.user'])->group(function () {
     Route::get('/me', [AuthController::class, 'me'])->name('me');
     Route::put('/me', [AuthController::class, 'updateMe'])->name('update-me');
 });
@@ -39,7 +39,7 @@ Route::get('/categories/{id}/subcategories', [CategoryController::class, 'subcat
 Route::get('/creators', [CreatorController::class, 'index']);
 Route::get('/creators/{id}', [CreatorController::class, 'show']);
 Route::get('/creators/{id}/room', [CreatorController::class, 'rooms']);
-Route::post('/creator/room', [CreatorController::class, 'storeRoom'])->middleware('auth:sanctum');
+Route::post('/creator/room', [CreatorController::class, 'storeRoom'])->middleware(['auth:sanctum', 'is.creator']);
 
 
 // Public routes
@@ -49,13 +49,17 @@ Route::get('/sessions/{occurrence}', [SessionOccurrenceController::class, 'show'
 // Routes for authenticated users
 Route::middleware('auth:sanctum')->group(function () {
 
-    // Creator routes (checks happen in controllers)
-    Route::post('/creator/session-templates', [SessionTemplateController::class, 'store']);
-    Route::post('/creator/session-templates/{template}/rules', [SessionTemplateController::class, 'addRules']);
-    Route::post('/creator/session-templates/{template}/generate', [SessionTemplateController::class, 'generateOccurrences']);
-    Route::post('/sessions/{occurrence}/drive-link', [SessionOccurrenceController::class, 'addDriveLink']);
+    // Creator routes
+    Route::middleware('is.creator')->group(function () {
+        Route::post('/creator/session-templates', [SessionTemplateController::class, 'store']);
+        Route::post('/creator/session-templates/{template}/rules', [SessionTemplateController::class, 'addRules']);
+        Route::post('/creator/session-templates/{template}/generate', [SessionTemplateController::class, 'generateOccurrences']);
+        Route::post('/sessions/{occurrence}/drive-link', [SessionOccurrenceController::class, 'addDriveLink']);
+    });
 
     // Booking routes
-    Route::post('/sessions/{occurrence}/book', [BookingController::class, 'book']);
-    Route::post('/sessions/{occurrence}/waitlist', [BookingController::class, 'waitlist']);
+    Route::middleware('is.user')->group(function () {
+        Route::post('/sessions/{occurrence}/book', [BookingController::class, 'book']);
+        Route::post('/sessions/{occurrence}/waitlist', [BookingController::class, 'waitlist']);
+    });
 });
