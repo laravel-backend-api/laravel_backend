@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\CreatorController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\SessionTemplateController;
 use App\Http\Controllers\Api\SessionOccurrenceController;
+use App\Http\Controllers\Api\SocialController;
 
 /*
 |--------------------------------------------------------------------------
@@ -57,8 +58,12 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/sessions/{occurrence}/drive-link', [SessionOccurrenceController::class, 'addDriveLink']);
     });
 
-    // Booking routes
+    // Booking routes and social
     Route::middleware('is.user')->group(function () {
+        // Social
+        Route::post('/creators/{id}/follow', [SocialController::class, 'follow']);
+        Route::delete('/creators/{id}/follow', [SocialController::class, 'unfollow']);
+        Route::get('/me/feed', [SocialController::class, 'feed']);
         Route::post('/sessions/{occurrence}/book', [BookingController::class, 'book']);
         Route::post('/sessions/{occurrence}/waitlist', [BookingController::class, 'waitlist']);
     });
