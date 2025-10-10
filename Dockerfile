@@ -17,4 +17,12 @@ ENV LOG_CHANNEL stderr
 # Allow composer to run as root
 ENV COMPOSER_ALLOW_SUPERUSER 1
 
+# Install required PHP extensions and dependencies
+# For PostgreSQL, you will need php-pgsql
+RUN apt-get update && apt-get install -y \
+    php-pgsql \
+    # Other extensions like php-mbstring, php-xml, etc. \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+    
 CMD ["/start.sh"]
