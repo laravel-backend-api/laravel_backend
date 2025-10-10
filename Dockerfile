@@ -19,10 +19,12 @@ ENV COMPOSER_ALLOW_SUPERUSER 1
 
 # Install required PHP extensions and dependencies
 # For PostgreSQL, you will need php-pgsql
-RUN apt-get update && apt-get install -y \
-    php-pgsql \
-    # Other extensions like php-mbstring, php-xml, etc. \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+RUN apk update && apk add \
+    php8-pgsql \
+    php8-mbstring \
+    php8-xml \
+    # Add other needed extensions here \
+    && rm -rf /var/cache/apk/*
 
     
 CMD ["/start.sh"]
