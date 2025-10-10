@@ -5,6 +5,8 @@ namespace App\Services\Wallet;
 use App\Models\Wallet;
 use App\Models\WalletTransaction;
 use Illuminate\Support\Facades\DB;
+use App\Services\Badge\BadgeService;
+use App\Models\User;
 
 class WalletService
 {
@@ -39,6 +41,23 @@ class WalletService
                 'meta' => $meta,
             ]);
         });
+    }
+
+    public function evaluateBadgesForUser(User $user): void
+    {
+        // Lifetime spent (user) and earned (creator) can be derived from transactions
+        $wallet = $user->wallet;
+        if (!$wallet) {
+            return;
+        }
+        $spent = $wallet->transactions()->where('type', 'DEBIT')->sum('amount');
+        $earned = $wallet->transactions()->where('type', 'CREDIT')->sum('amount');
+        $badgeService = app(BadgeService::class);
+        if ($user->role === 'user') {
+            $badgeService->evaluateAndAward($user, 'user', (int)$spent);
+        } else if ($user->role === 'creator') {
+            $badgeService->evaluateAndAward($user, 'creator', (int)$earned);
+        }
     }
 }
 

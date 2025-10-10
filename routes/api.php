@@ -12,6 +12,8 @@ use App\Http\Controllers\Api\SocialController;
 use App\Http\Controllers\Api\WalletController;
 use App\Http\Controllers\Api\QuestionsController;
 use App\Http\Controllers\Api\CreatorVerificationController;
+use App\Http\Controllers\Api\LeaderboardController;
+use App\Http\Controllers\Api\BadgesController;
 
 /*
 |--------------------------------------------------------------------------
@@ -79,10 +81,17 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/wallet/transactions', [WalletController::class, 'transactions']);
         // Questions (premium)
         Route::post('/questions', [QuestionsController::class, 'store']);
-    });
 
+        // Badges
+        Route::get('/badges', [BadgesController::class, 'index']);
+        Route::get('/me/badges', [BadgesController::class, 'myBadges']);
+    });
+            
     // Admin/system actions
     Route::middleware('is.admin')->group(function () {
         Route::post('/questions/{question}/refund', [QuestionsController::class, 'refund']);
     });
 });
+
+// Leaderboards (public)
+Route::get('/leaderboards', [LeaderboardController::class, 'index']);
